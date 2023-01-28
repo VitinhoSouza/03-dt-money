@@ -99,7 +99,7 @@ export const TransactionTypeButton = styled(
     transition: background-color 0.2s;
     background: ${(props) => props.theme['gray-600']};
   }
-  
+
   &[data-state='checked'] {
     color: ${(props) => props.theme.white};
     background: ${(props) =>
