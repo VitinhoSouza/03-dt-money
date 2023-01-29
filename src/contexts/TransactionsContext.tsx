@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { api } from '../lib/axios'
 import * as z from 'zod'
-// import { createContext } from 'use-context-selector'
+import { createContext } from 'use-context-selector'
 
 const newTransactionFormSchema = z.object({
   description: z.string(),
@@ -37,31 +37,37 @@ export const TransactionsProvider = ({
 }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
-  async function fetchTransactions(query?: string) {
-    const search = query ? `&q=${query}` : ''
-    const response = await api.get(
-      `/transactions?_sort=createdAt&_order=desc${search}`,
-    )
-    setTransactions(response.data)
-  }
+  const fetchTransactions = useCallback(
+    async (query?: string) => {
+      const search = query ? `&q=${query}` : ''
+      const response = await api.get(
+        `/transactions?_sort=createdAt&_order=desc${search}`,
+      )
+      setTransactions(response.data)
+    },
+    []
+  )
 
   useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [fetchTransactions])
 
-  async function createTransaction(data: CreateTransactionInputs) {
-    const { description, price, category, type } = data
-
-    const response = await api.post('transactions', {
-      description,
-      price,
-      category,
-      type,
-      createdAt: new Date(),
-    })
-
-    setTransactions((state) => [response.data, ...state])
-  }
+  const createTransaction = useCallback(
+    async (data: CreateTransactionInputs) => {
+      const { description, price, category, type } = data
+  
+      const response = await api.post('transactions', {
+        description,
+        price,
+        category,
+        type,
+        createdAt: new Date(),
+      })
+  
+      setTransactions((state) => [response.data, ...state])
+    },
+    []
+  )
 
   return (
     <TransactionsContext.Provider
